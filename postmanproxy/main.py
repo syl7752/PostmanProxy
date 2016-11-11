@@ -1,7 +1,8 @@
-from postman.collection import Collection
+from postman.Collection import Collection
 from postman.collection_creator_proxy import CollectionCreatorProxy
 from postman.header_filter_proxy import HeaderFilterProxy
 from libmproxy import controller, proxy
+from libmproxy.proxy.server import ProxyServer
 import argparse
 import signal
 import sys
@@ -41,17 +42,15 @@ def start_creator_proxy(options):
 	}
 
 	collection = Collection(name, path)
-	config = proxy.ProxyConfig(
-		cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem")
-	)
-	server = proxy.ProxyServer(config, port)
+	config = proxy.ProxyConfig(port=port)
+	server = ProxyServer(config)
 
 	if options.tcp_connection == 'false':
 		tcp_connection = False
 	else:
 		tcp_connection = True
 
-	m = CollectionCreatorProxy(server, collection, rules, tcp_connection=tcp_connection, tcp_host=options.tcp_host, tcp_port=options.tcp_port)
+	m = CollectionCreatorProxy(server, collection, rules, tcp_connection=tcp_connection, tcp_host=options.tcp_host, tcp_port=options.tcp_port,filter_url=options.filter_url)
 
 	m.run()
 
@@ -62,10 +61,8 @@ def start_creator_proxy(options):
 def start_filter_proxy(options):
 	print "Press Ctrl+C to stop the proxy"
 	port = int(options.port)
-	config = proxy.ProxyConfig(
-		cacert = os.path.expanduser("~/.mitmproxy/mitmproxy-ca.pem")
-	)
-	server = proxy.ProxyServer(config, port)
+	config = proxy.ProxyConfig(port=port)
+	server = ProxyServer(config)
 	m = HeaderFilterProxy(server)
 	m.run()
 
@@ -81,6 +78,7 @@ def main():
 	parser.add_argument("--tcp_connection", type=str, help="Availble for the save option. Set to true to send requests to Postman. Default is False.", default='false')
 	parser.add_argument("--tcp_host", help="TCP host to forward to", default="127.0.0.1")
 	parser.add_argument("--tcp_port", help="TCP port", default=5005)
+	parser.add_argument("--filter_url", help="Only allow URLs contains giving string", default="")
 	# parser.add_option("-s", "--status_codes", dest="status_codes", help="Comma separated list of allowed status codes. Default is all codes", default=[])
 
 	args = parser.parse_args()

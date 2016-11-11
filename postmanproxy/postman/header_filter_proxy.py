@@ -1,6 +1,6 @@
 from libmproxy import controller, proxy
 from request import Request
-from collection import Collection
+from Collection import Collection
 import os
 import logging
 

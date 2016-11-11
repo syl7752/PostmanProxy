@@ -2,6 +2,7 @@ import utils
 import uuid
 import time
 import json
+import io
 
 class Collection:
 	"""Postman collection class"""
@@ -59,4 +60,20 @@ class Collection:
 
 		data = self.get_json()
 		with open(target, 'w') as outfile:
-			json.dump(data, outfile)
+			json.dump(data,outfile)
+			#json.dump(data, outfile)
+             #with open(target, 'w') as outfile:
+			#json.dump(data, outfile)
+	def get_request(self,request):
+		for req in self.requests:
+			print "url1 = "+req.url
+			print "url2 = "+request.url
+			if req.url == request.url and req.data == request.data:
+				return req
+	def set_request(self,request):
+		for i in range(0, len(self.requests)):
+			req = self.requests[i]
+			if request.method == req.method and request.dataMode == req.dataMode and  request.data == req.data and request.url == req.url:
+				self.requests[i] = request
+				
+             
